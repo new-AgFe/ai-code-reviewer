@@ -7,15 +7,24 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  review: # 잡 이름을 review로 변경해볼까요?
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 이전 커밋과의 차이(diff)를 계산하기 위해 전체 히스토리를 가져옵니다.
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+
       - run: npm install
-      - run: npm run build # 여기서 빌드 에러가 나면 파이프라인이 중단됩니다!
+
+      # AI 리뷰 스크립트를 실행하는 단계
+      - name: Run AI Code Review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # 금고에서 키를 꺼내 환경 변수로 주입!
+        run: node scripts/review.js
