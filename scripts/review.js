@@ -13,7 +13,7 @@ async function main() {
 
         // 1. Gemini API 호출 (무료!)
         const geminiKey = process.env.GEMINI_API_KEY;
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
 
         const prompt = `너는 아주 깐깐한 시니어 개발자야. 다음 코드의 변경 사항(diff)을 보고, 잠재적인 버그나 타입 에러, 성능 최적화가 필요한 부분을 찾아서 3줄 요약 리뷰를 남겨줘. 말투는 전공자 선배처럼 해줘. \n\n${diff}`;
 
