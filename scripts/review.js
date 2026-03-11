@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { GoogleGenAI } from '@google/genai';
 const axios = require('axios');
 const fs = require('fs');
 const { execSync } = require('child_process');
@@ -15,10 +15,10 @@ async function main() {
         if (!diff) return;
 
         // 2. Gemini 설정 (최신 문법)
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
         
         // 모델 선언 시 API 버전을 명시하지 않고 가장 기본형으로 선언
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         const prompt = `너는 아주 깐깐한 시니어 개발자야. 다음 코드 변경 사항(diff)에 대해 3줄 요약 리뷰를 남겨줘. \n\n${diff}`;
 
