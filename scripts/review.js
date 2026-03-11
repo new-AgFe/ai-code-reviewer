@@ -18,7 +18,7 @@ async function main() {
         // 2. Gemini 공식 SDK 설정
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel(
-            { model: "gemini-1.5-flash" },
+            { model: "gemini-1.5-pro" },
             { apiVersion: 'v1' } // 이 부분을 추가해서 v1beta가 아닌 안정 버전을 타게 합니다.
         );
 
