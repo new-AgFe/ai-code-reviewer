@@ -1,49 +1,38 @@
+// scripts/review.js (Gemini 버전)
 const axios = require('axios');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
 async function main() {
-  try {
-    // 1. PR 정보 가져오기 (GitHub Actions가 제공하는 이벤트 파일 읽기)
-    const eventPath = process.env.GITHUB_EVENT_PATH;
-    const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-    const prNumber = eventData.pull_request ? eventData.pull_request.number : null;
-    const repo = process.env.GITHUB_REPOSITORY;
+    try {
+        const diff = execSync('git diff origin/main HEAD').toString(); // main 브랜치와의 차이점
+        const eventPath = process.env.GITHUB_EVENT_PATH;
+        const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
+        const prNumber = eventData.pull_request.number;
+        const repo = process.env.GITHUB_REPOSITORY;
 
-    if (!prNumber) {
-      console.log("PR 환경이 아닙니다. 댓글 작성을 건너뜁니다.");
-      return;
+        // 1. Gemini API 호출 (무료!)
+        const geminiKey = process.env.GEMINI_API_KEY;
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+
+        const prompt = `너는 아주 깐깐한 시니어 개발자야. 다음 코드의 변경 사항(diff)을 보고, 잠재적인 버그나 타입 에러, 성능 최적화가 필요한 부분을 찾아서 3줄 요약 리뷰를 남겨줘. 말투는 전공자 선배처럼 해줘. \n\n${diff}`;
+
+        const aiResponse = await axios.post(geminiUrl, {
+            contents: [{ parts: [{ text: prompt }] }]
+        });
+
+        const reviewContent = aiResponse.data.candidates[0].content.parts[0].text;
+
+        // 2. GitHub에 댓글 달기
+        const githubToken = process.env.GITHUB_TOKEN;
+        await axios.post(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments`, 
+            { body: `### 🤖 Gemini AI 사수의 코드 리뷰\n\n${reviewContent}` },
+            { headers: { 'Authorization': `token ${githubToken}` } }
+        );
+
+        console.log("✅ 진짜 AI 리뷰가 완료되었습니다!");
+    } catch (error) {
+        console.error("실패:", error.response?.data || error.message);
     }
-
-    // 2. 가짜 리뷰 결과 (나중에 진짜 AI로 교체할 부분)
-    const mockReview = `
-        ### 🤖 AI Code Reviewer의 분석 결과
-        사용자님, PR을 검토했습니다! 4.3 학점다운 깔끔한 코드를 지향해 봅시다.
-
-        - **발견된 문제**: \`page.tsx\`에서 타입 불일치가 의심됩니다.
-        - **제안**: TypeScript 인터페이스를 더 구체화해 보세요.
-        - **네트워크**: 불필요한 API 호출이 없는지 확인 바랍니다.
-    `;
-
-    // 3. GitHub API로 댓글 전송
-    const token = process.env.GITHUB_TOKEN; // .yml에서 주입받을 예정
-    const url = `https://api.github.com/repos/${repo}/issues/${prNumber}/comments`;
-
-    console.log(`--- PR #${prNumber}에 댓글을 작성 중 ---`);
-
-    await axios.post(url, { body: mockReview }, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    });
-
-    console.log("✅ 댓글 작성이 완료되었습니다!");
-
-  } catch (error) {
-    console.error("❌ 댓글 작성 실패:", error.response ? error.response.data : error.message);
-    process.exit(1);
-  }
 }
-
 main();
