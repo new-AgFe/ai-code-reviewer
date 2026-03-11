@@ -6,10 +6,6 @@ const { execSync } = require('child_process');
 
 async function main() {
     try {
-
-        const models = await genAI.listModels();
-        console.log("사용 가능한 모델 목록:", models.map(m => m.name));
-        
         // 1. 기초 정보 설정
         const diff = execSync('git diff origin/main HEAD').toString();
         const eventPath = process.env.GITHUB_EVENT_PATH;
@@ -21,6 +17,10 @@ async function main() {
 
         // 2. Gemini 공식 SDK 설정
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+        const models = await genAI.listModels();
+        console.log("사용 가능한 모델 목록:", models.map(m => m.name));
+        
         const model = genAI.getGenerativeModel(
             { model: "gemini-1.5-pro" },
             { apiVersion: 'v1' } // 이 부분을 추가해서 v1beta가 아닌 안정 버전을 타게 합니다.
