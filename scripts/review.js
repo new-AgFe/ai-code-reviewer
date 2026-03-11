@@ -15,21 +15,16 @@ async function main() {
         if (!diff) return;
 
         // 2. Gemini 설정 (최신 문법)
-        const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
         
-        // 모델 선언 시 API 버전을 명시하지 않고 가장 기본형으로 선언
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const response = await ai.models.generateContent({
+            model: 'gemini-1.5-flash', // 캡처본 예시의 gemini-2.5-flash는 아직 안될 수 있으니 1.5로 시도
+            contents: `너는 아주 깐깐한 시니어 개발자야. 다음 코드 변경 사항(diff)에 대해 3줄 요약 리뷰를 남겨줘. \n\n${diff}`,
+        });
 
-        const prompt = `너는 아주 깐깐한 시니어 개발자야. 다음 코드 변경 사항(diff)에 대해 3줄 요약 리뷰를 남겨줘. \n\n${diff}`;
+        // 3. 응답 텍스트 추출 (깃허브 예시: response.text)
+        const reviewContent = response.text;
 
-        console.log("--- Gemini AI에게 분석 요청 중 ---");
-        
-        // generateContent는 비동기 함수이므로 await를 꼭 확인하세요.
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const reviewContent = response.text();
-
-        // 3. GitHub에 댓글 달기
         const githubToken = process.env.GITHUB_TOKEN;
         await axios.post(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments`, 
             { body: `### 🤖 Gemini AI 사수의 진짜 리뷰\n\n${reviewContent}` },
