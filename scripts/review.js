@@ -17,7 +17,7 @@ async function main() {
 
         // 2. Gemini 공식 SDK 설정
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // 모델명 자동 매칭
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // 모델명 자동 매칭
 
         const prompt = `너는 아주 깐깐한 시니어 개발자야. 다음 코드 변경 사항(diff)에 대해 3줄 요약 리뷰를 남겨줘. 말투는 전공자 선배처럼 해줘. \n\n${diff}`;
 
