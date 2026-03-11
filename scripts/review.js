@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
-const axios = require('axios');
-const fs = require('fs');
-const { execSync } = require('child_process');
+import axios from 'axios';
+import fs from 'fs';
+import { execSync } from 'child_process';
 
 async function main() {
     try {
