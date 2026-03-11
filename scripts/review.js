@@ -6,6 +6,10 @@ const { execSync } = require('child_process');
 
 async function main() {
     try {
+
+        const models = await genAI.listModels();
+        console.log("사용 가능한 모델 목록:", models.map(m => m.name));
+        
         // 1. 기초 정보 설정
         const diff = execSync('git diff origin/main HEAD').toString();
         const eventPath = process.env.GITHUB_EVENT_PATH;
