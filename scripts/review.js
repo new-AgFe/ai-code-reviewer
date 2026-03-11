@@ -18,8 +18,8 @@ async function main() {
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
         
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', // 캡처본 예시의 gemini-2.5-flash는 아직 안될 수 있으니 1.5로 시도
-            contents: `너는 아주 깐깐한 시니어 개발자야. 다음 코드 변경 사항(diff)에 대해 3줄 요약 리뷰를 남겨줘. \n\n${diff}`,
+            model: 'gemini-2.5-flash',
+            contents: `너는 아주 깐깐한 시니어 개발자야. 다음 코드 변경 사항(diff)에 대해 3줄 요약 리뷰를 반드시 한국어로 답변해줘 말투는 전공자 선배처럼 해줘. \n\n${diff}`,
         });
 
         // 3. 응답 텍스트 추출 (깃허브 예시: response.text)
