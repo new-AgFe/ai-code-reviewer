@@ -9,6 +9,9 @@ on:
 jobs:
   review: # 잡 이름을 review로 변경해볼까요?
     runs-on: ubuntu-latest
+    permissions: # 이 부분을 추가하세요!
+      contents: read
+      pull-requests: write # PR에 댓글을 쓸 수 있는 권한
 
     steps:
       - uses: actions/checkout@v4
