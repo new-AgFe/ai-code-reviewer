@@ -18,7 +18,7 @@ async function main() {
         // 2. Gemini 공식 SDK 설정
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-        const models = await genAI.listModels();
+        const models = await genAI.ListModels();
         console.log("사용 가능한 모델 목록:", models.map(m => m.name));
         
         const model = genAI.getGenerativeModel(
