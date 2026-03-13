@@ -5,14 +5,24 @@ import { execSync } from 'child_process';
 
 async function main() {
     try {
-        // 1. 환경 변수 및 변경 사항 가져오기
-        const diff = execSync('git diff origin/main HEAD').toString();
-        const eventPath = process.env.GITHUB_EVENT_PATH;
-        const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-        const prNumber = eventData.pull_request.number;
-        const repo = process.env.GITHUB_REPOSITORY;
+        // 1. 인자로 받은 타겟 경로 (기본값은 현재 폴더 '.')
+        const targetPath = process.argv[2] || '.'; 
+        
+        // 2. git diff 추출 (origin/main 대신 자동으로 기본 브랜치와 비교하게 하거나 명시)
+        // -C 옵션으로 해당 폴더 내의 변경사항을 정확히 캡처합니다.
+        const diff = execSync(`git -C ${targetPath} diff origin/main HEAD`).toString();
 
-        if (!diff) return;
+        // 3. GitHub 이벤트 데이터 읽기 (이건 targetPath와 상관없이 환경변수 경로 사용)
+        const eventPath = process.env.GITHUB_EVENT_PATH; 
+        const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
+        
+        const prNumber = eventData.pull_request?.number;
+        const repo = process.env.GITHUB_REPOSITORY; // 이건 현재 Actions가 실행되는 레포 이름
+
+        if (!diff || !prNumber) {
+            console.log("리뷰할 변경 사항이 없거나 PR 정보가 없습니다.");
+            return;
+        }
 
         // 2. Gemini 설정 (최신 문법)
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
